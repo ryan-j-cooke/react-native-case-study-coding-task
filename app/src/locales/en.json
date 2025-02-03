@@ -11,5 +11,7 @@
 	"top-10-members-end": "Top 10 Members End",
 	"user-found": "User Found",
 	"copied": "Copied",
-	"name-copied-message": "Members name was successfully copied to the clipboard"
+	"name-copied-message": "Members name was successfully copied to the clipboard",
+	"ok": "Ok",
+	"cancel": "Cancel"
 }

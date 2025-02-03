@@ -4,6 +4,8 @@ import { Appbar, TextInput, Button, Card, Text, SegmentedButtons, Icon, Divider 
 import leaderboardData from './hooks/leaderboard-data';
 import { useTranslation } from 'react-i18next';
 
+import FuzzySearchDialog from './fuzzy-search-dialog';
+
 import firstPrize from '../../assets/icons/1-prize.png';
 import secondPrize from '../../assets/icons/2-prize.png';
 import thirdPrize from '../../assets/icons/3-prize.png';
@@ -107,6 +109,7 @@ const styles = StyleSheet.create({
 
 const Home = () => {
 	const flatListRef = useRef<FlatList>(null);
+	const dialogRef = useRef(null);
 	const { t } = useTranslation();
     const {
 		username,
@@ -116,9 +119,10 @@ const Home = () => {
         handleSortChange,
         leaderboard,
         loading,
+		wasFuzzySearch,
     } = leaderboardData();
 	const [ searchTriggered, setSearchTriggered ] = useState(false);
-	
+
 	useEffect(() => {
 		if (searchTriggered) {
 			handleSearch();
@@ -127,7 +131,8 @@ const Home = () => {
 	}, [searchTriggered, handleSearch]);
 
 	useEffect(() => {
-		if (!!username && !leaderboard.userFound) {
+		// we only need to show this modal if the search was not a fuzzy search
+		if (!wasFuzzySearch && !!username && !leaderboard.userFound) {
 			Alert.alert(
 				'Error',
 				t('user-doesnt-exist'),
@@ -162,6 +167,8 @@ const Home = () => {
 
 				<Appbar.Content title={t('leaderboard')} />
 
+				<Appbar.Action icon="magnify" onPress={() => { dialogRef.current && dialogRef.current.show() }} />
+
 			</Appbar.Header>
 
 			<View style={styles.container}>
@@ -180,7 +187,7 @@ const Home = () => {
 						}} />}
 					/>
 
-					<Button mode="contained" style={styles.button} icon="magnify" onPress={handleSearch}>
+					<Button mode="contained" style={styles.button} icon="magnify" onPress={() => handleSearch()}>
 
 						{ t('search') }
 
@@ -227,7 +234,7 @@ const Home = () => {
 						)}
 						renderItem={({ item, index }) => (
 							<View>
-								{index === 0 && (
+								{(index === 0 && sortValue === 'rank') && (
 									<View style={styles.top10IndicatorCont}>
 
 										<Text style={styles.top10Text}>{t('top-10-members')}</Text>
@@ -278,7 +285,7 @@ const Home = () => {
 
 										</View>
 
-										{index < 3 && (
+										{(index < 3 && sortValue === 'rank') && (
 											<View style={{ justifyContent: 'center', alignItems: 'center' }}>
 
 												<Image source={prizeImages[index + 1]} style={styles.icnPrize} />
@@ -309,6 +316,13 @@ const Home = () => {
 				</View>
 
 			</View>
+
+			<FuzzySearchDialog
+                ref={dialogRef}
+                onOkPressed={(searchValue: string) => {
+					handleSearch(searchValue);
+				}}
+            />
 
 		</View>
     );

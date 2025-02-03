@@ -25,6 +25,7 @@ interface LeaderboardState {
 
 const leaderboardData = () => {
     const [ username, setUsername ] = useState('');
+    const [ wasFuzzySearch, setWasFuzzySearch ] = useState(false);
     const [ sortValue, setSortValue ] = useState('rank');
     const [ loading, setLoading ] = useState(true);
     const [ filteredLeaderboard, setFilteredLeaderboard ] = useState<LeaderboardState>({ 
@@ -75,59 +76,70 @@ const leaderboardData = () => {
 
     useEffect(() => { fetchData() }, [dispatch, t]);
 
-    const handleSearch = () => {
+    const handleSearch = (fuzzySearchValue?: string) => {
 		if (loading) return;
 
 		Keyboard.dismiss();
 	
-		if (!username) {
+		setWasFuzzySearch(!!fuzzySearchValue);
+
+		if (!username && !fuzzySearchValue) {
 			fetchData();
 			return;
 		}
 
 		const out = { members: [], userFound: false };
-	
-		// Take the top 10 - This will take care of case
-		filteredLeaderboard.members.slice(0, 10).forEach((user, index) => {
-			const userMatch = user.name.toLowerCase() === username.toLowerCase();
-			const newUser = { ...user, userMatch };
-			out.members.push(newUser);
 
-			if (userMatch) {
-				out.userFound = true;
-				out.foundUserIndex = index;
-			}
-		});
+		// if there is no fuzzy search provided then we take care of case 1 and 2
+		if (typeof fuzzySearchValue !== 'string') {
+			// Take the top 10 - This will take care of case
+			filteredLeaderboard.members.slice(0, 10).forEach((user, index) => {
+				const userMatch = user.name.toLowerCase() === username.toLowerCase();
+				const newUser = { ...user, userMatch };
+				out.members.push(newUser);
 
-		/**
-		 * Case 2:
-		 *    1. If there was no user found in the top ten
-		 *    2. Then we filter on the whole list
-		 *    3. If found then we replace the last rank of the top ten 
-		 */
-		if (!out.userFound) {
-			const filtered: User[] = filteredLeaderboard.members.filter(user =>
-				user.name.toLowerCase() === username.toLowerCase()
-			);
-
-			// If a user is found
-			if (filtered.length > 0) {
-				// replace the last item
-				const userToReplace = filtered[0];
-
-				// If top 10 has less than 10 members, just add the found user
-				if (out.members.length < 10) {
-					out.members.push({...userToReplace, userMatch: true});
-					out.foundUserIndex = out.members.length - 1;
+				if (userMatch) {
+					out.userFound = true;
+					out.foundUserIndex = index;
 				}
-				// Otherwise replace the last element of top 10
-				else {
-					out.members[9] = { ...userToReplace, userMatch: true };
-					out.foundUserIndex = 9;
-				}
+			});
 
-				out.userFound = true;
+			/**
+			 * Case 2:
+			 *    1. If there was no user found in the top ten
+			 *    2. Then we filter on the whole list
+			 *    3. If found then we replace the last rank of the top ten 
+			 */
+			if (!out.userFound) {
+				const filtered: User[] = filteredLeaderboard.members.filter(user =>
+					user.name.toLowerCase() === username.toLowerCase()
+				);
+
+				// If a user is found
+				if (filtered.length > 0) {
+					// replace the last item
+					const userToReplace = filtered[0];
+
+					// If top 10 has less than 10 members, just add the found user
+					if (out.members.length < 10) {
+						out.members.push({...userToReplace, userMatch: true});
+						out.foundUserIndex = out.members.length - 1;
+					}
+					// Otherwise replace the last element of top 10
+					else {
+						out.members[9] = { ...userToReplace, userMatch: true };
+						out.foundUserIndex = 9;
+					}
+
+					out.userFound = true;
+				}
 			}
+		}
+		// apply fuzzy search
+		else {
+			out.members = filteredLeaderboard.members.filter(user => {
+				return user.name.toLowerCase().includes(fuzzySearchValue.toLowerCase());
+			});
 		}
 
 		setFilteredLeaderboard(out);
@@ -173,6 +185,7 @@ const leaderboardData = () => {
         handleSortChange,
         leaderboard: filteredLeaderboard,
         loading,
+		wasFuzzySearch,
     };
 };
 
