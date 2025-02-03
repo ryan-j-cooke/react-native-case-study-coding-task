@@ -9,11 +9,6 @@ const initialState = fromJS({
 	},
 });
 
-// const initialState = Map({
-// 	leaderboard: List([]),
-// 	filteredLeaderboard: { members: List([]), userFound: false },
-// });
-
 const leaderboardReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'SET_LEADERBOARD':

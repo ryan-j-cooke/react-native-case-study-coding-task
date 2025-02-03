@@ -148,7 +148,7 @@ const Home = () => {
 		}
 
 		// we only need to show this modal if the search was not a fuzzy search
-		if (!wasFuzzySearch && !!username && !leaderboard.userFound) {
+		if (!wasFuzzySearch && !!username && !leaderboard.get('userFound')) {
 			Alert.alert(
 				'Error',
 				t('user-doesnt-exist'),
@@ -159,9 +159,9 @@ const Home = () => {
 			);
 		}
 		// If a user is found then scroll to the found index
-		else if (typeof leaderboard.foundUserIndex === 'number') {
+		else if (typeof leaderboard.get('foundUserIndex') === 'number') {
 			flatListRef.current.scrollToIndex({
-				index: leaderboard.foundUserIndex,
+				index: leaderboard.get('foundUserIndex'),
 				animated: true,
 			});
 		}

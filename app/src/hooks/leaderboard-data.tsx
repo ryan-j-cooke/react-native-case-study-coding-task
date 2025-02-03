@@ -62,7 +62,12 @@ const leaderboardData = () => {
 
 			Keyboard.dismiss();
 		
-			setWasFuzzySearch(!!fuzzySearchValue);
+			const isFuzzySearch = !!fuzzySearchValue;
+
+			setWasFuzzySearch(isFuzzySearch);
+
+			// if the search is a fuzze search then we just need to reset the username filter
+			if (isFuzzySearch) setUsername('');
 
 			if ((!username && !fuzzySearchValue) || !leaderboard) {
 				fetchData();
@@ -73,10 +78,11 @@ const leaderboardData = () => {
 
 			// if there is no fuzzy search provided then we take care of case 1 and 2
 			if (typeof fuzzySearchValue !== 'string') {
-				// Take the top 10 - This will take care of case
+				// Take the top 10 - This will take care of case 1
 				leaderboard.slice(0, 10).forEach((user, index) => {
 					const userMatch = user.get('name')?.toLowerCase() === username?.toLowerCase();
 					const newUser = { ...user.toObject(), userMatch };
+
 					out.members.push(newUser);
 
 					if (userMatch) {
@@ -97,9 +103,9 @@ const leaderboardData = () => {
 					);
 
 					// If a user is found
-					if (filtered.length > 0) {
+					if (filtered.size > 0) {
 						// replace the last item
-						const userToReplace = filtered[0].toObject();
+						const userToReplace = filtered.get(0).toObject();
 
 						// If top 10 has less than 10 members, just add the found user
 						if (out.members.length < 10) {
@@ -139,13 +145,12 @@ const leaderboardData = () => {
 		setUsername('');
 
 		setSortValue(value);
-
 		// Here I'm filtering out users with no name as it didn't seem to make sense to show them
-		const sortedList: User[] = leaderboard?.filter(user => user.name !== '');
+		const sortedList: User[] = leaderboard?.filter(user => user.get('name') !== '').toArray();
 
         switch (value) {
             case 'name':
-                sortedList.sort((a, b) => a.get('name').localeCompare(b.name));
+                sortedList.sort((a, b) => a.get('name').localeCompare(b.get('name')));
                 break;
 
             case 'rank':
@@ -159,7 +164,7 @@ const leaderboardData = () => {
             default: break;
         }
 
-        setFilteredLeaderboard({ members: sortedList, userFound: false });
+        dispatch(setFilteredLeaderboard({ members: sortedList, userFound: false }));
     };
 
     return {
