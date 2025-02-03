@@ -27,6 +27,7 @@ const FuzzySearchDialog = forwardRef(({ onOkPressed }: { onOkPressed: (searchVal
     const [ fuzzySearch, setFuzzySearch ] = useState('');
 
     useImperativeHandle(ref, () => ({
+		fuzzySearch,
         show: () => setShowModal(true),
         hide: () => setShowModal(false),
     }));
@@ -57,8 +58,9 @@ const FuzzySearchDialog = forwardRef(({ onOkPressed }: { onOkPressed: (searchVal
 						if (onOkPressed) await onOkPressed(fuzzySearch);
 
 						setShowModal(false);
-					}}>
 
+						// setFuzzySearch('');			
+					}}>
 						{ t('ok') }
 
 					</Button>

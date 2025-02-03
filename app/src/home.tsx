@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, FlatList, StyleSheet, ActivityIndicator, Image, Alert, Clipboard, TouchableOpacity } from 'react-native';
-import { Appbar, TextInput, Button, Card, Text, SegmentedButtons, Icon, Divider } from 'react-native-paper';
+import { Appbar, FAB, TextInput, Button, Card, Text, SegmentedButtons, Icon, Divider } from 'react-native-paper';
 import leaderboardData from './hooks/leaderboard-data';
 import { useTranslation } from 'react-i18next';
 
 import FuzzySearchDialog from './fuzzy-search-dialog';
+import LanguageSelector from './components/language-selector';
 
 import firstPrize from '../../assets/icons/1-prize.png';
 import secondPrize from '../../assets/icons/2-prize.png';
@@ -195,6 +196,12 @@ const Home = () => {
 
 				</View>
 
+				{dialogRef?.current?.fuzzySearch && <Text>
+					
+					{ dialogRef?.current?.fuzzySearch }
+					
+				</Text>}
+
 				<SegmentedButtons
 					value={sortValue}
 					onValueChange={handleSortChange}
@@ -316,6 +323,8 @@ const Home = () => {
 				</View>
 
 			</View>
+
+			<LanguageSelector />
 
 			<FuzzySearchDialog
                 ref={dialogRef}
