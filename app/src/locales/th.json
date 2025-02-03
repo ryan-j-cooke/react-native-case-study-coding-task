@@ -1,0 +1,15 @@
+{
+	"app-title": "Case Study App",
+	"enter-username": "Enter Username",
+	"rank": "Rank",
+	"name": "Name",
+	"lowest-rank": "Lowest Rank",
+	"user-doesnt-exist": "This user name does not exist! Please specify an existing user name!",
+	"leaderboard": "Leaderboard",
+	"total-members": "Total members: {{count}}",
+	"top-10-members": "Top 10 Members",
+	"top-10-members-end": "Top 10 Members End",
+	"user-found": "User Found",
+	"copied": "Copied",
+	"name-copied-message": "Members name was successfully copied to the clipboard"
+}
