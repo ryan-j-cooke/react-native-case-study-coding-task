@@ -3,10 +3,8 @@ import { AppRegistry } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import rootReducer from './src/store/reducers';
+import store from './src/store';
 import App from './src/app';
-
-const store = createStore(rootReducer);
 
 export default function Main() {
     return (

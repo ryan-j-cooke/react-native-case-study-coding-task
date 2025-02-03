@@ -106,6 +106,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
 		marginBottom: 5,
 	},
+	fuzzySearchContainer: {
+		width: '100%',
+        paddingVertical: 2,
+        paddingLeft: 2,
+        backgroundColor: '#eee',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+		marginBottom: 5,
+	},
 });
 
 const Home = () => {
@@ -126,12 +135,18 @@ const Home = () => {
 
 	useEffect(() => {
 		if (searchTriggered) {
+			dialogRef?.current?.setFuzzySearch('');
 			handleSearch();
 			setSearchTriggered(false);
 		}
 	}, [searchTriggered, handleSearch]);
 
 	useEffect(() => {
+		// if for what ever reason the fuzzy search hasn't been reset yet then set it here
+		if (!wasFuzzySearch && dialogRef?.current?.fuzzySearch) {
+			dialogRef?.current?.setFuzzySearch('');
+		}
+
 		// we only need to show this modal if the search was not a fuzzy search
 		if (!wasFuzzySearch && !!username && !leaderboard.userFound) {
 			Alert.alert(
@@ -188,7 +203,10 @@ const Home = () => {
 						}} />}
 					/>
 
-					<Button mode="contained" style={styles.button} icon="magnify" onPress={() => handleSearch()}>
+					<Button mode="contained" style={styles.button} icon="magnify" onPress={() => {
+						dialogRef?.current?.setFuzzySearch('');
+						handleSearch();
+					}}>
 
 						{ t('search') }
 
@@ -196,11 +214,15 @@ const Home = () => {
 
 				</View>
 
-				{dialogRef?.current?.fuzzySearch && <Text>
+				{dialogRef?.current?.fuzzySearch && <View style={styles.fuzzySearchContainer}>
 					
-					{ dialogRef?.current?.fuzzySearch }
-					
-				</Text>}
+					<Text>
+
+						{ t('fuzzy-search-results', { term: dialogRef?.current?.fuzzySearch }) }
+						
+					</Text>
+
+				</View>}
 
 				<SegmentedButtons
 					value={sortValue}
@@ -223,17 +245,19 @@ const Home = () => {
 
 				<View style={styles.listContainer}>
 
+					{/* <Text>{leaderboard.get('members').toString()}</Text> */}
+
 					<FlatList
 						ref={flatListRef}
 						style={styles.memberList}
-						data={leaderboard.members}
-						keyExtractor={(item) => item.uid}
+						data={leaderboard.get('members').toArray()}
+						keyExtractor={(item) => item.get('uid')}
 						ListHeaderComponent={() => (
 							<View style={styles.header}>
 
 								<Text style={styles.headerText}>
 									
-									{ t('total-members', { count: leaderboard?.members.length ?? 0 }) }
+									{ t('total-members', { count: leaderboard.get('members')?.size ?? 0 }) }
 
 								</Text>
 
@@ -249,7 +273,7 @@ const Home = () => {
 									</View>
 								)}
 
-								{item.userMatch && <View style={styles.foundUserContainer}>
+								{item.get('userMatch') && <View style={styles.foundUserContainer}>
 
 									<Text>{ t('user-found') }</Text>
 
@@ -259,18 +283,18 @@ const Home = () => {
 									style={[
 										styles.card,
 										index === 0 ? styles.no1 : index === 1 ? styles.no2 : index < 10 && styles.top10Card,
-										item.userMatch && styles.highlight
+										item.get('userMatch') && styles.highlight
 									]}
 								>
 									<Card.Content style={{ flexDirection: 'row', alignItems: 'center' }}>
 
 										<View style={{ flex: 1 }}>
 
-											<TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => handleCopyName(item.name)}>
+											<TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => handleCopyName(item.get('name'))}>
 
 												<Text style={{ paddingRight: 5 }} variant="titleMedium">
 
-													{item.name}
+													{item.get('name')}
 
 												</Text>
 
@@ -284,9 +308,9 @@ const Home = () => {
 
 											<View style={{ flexDirection: 'row' }}>
 
-												<Text>{t('rank')}: #{item.rank}</Text>
+												<Text>{t('rank')}: #{item.get('rank')}</Text>
 
-												<Text style={{ marginLeft: 5 }}>{t('bananas')}: {item.bananas}</Text>
+												<Text style={{ marginLeft: 5 }}>{t('bananas')}: {item.get('bananas')}</Text>
 
 											</View>
 
@@ -304,7 +328,7 @@ const Home = () => {
 
 								</Card>
 
-								{item.userMatch && <View style={{ marginBottom: 10 }} />}
+								{item.get('userMatch') && <View style={{ marginBottom: 10 }} />}
 
 								{index == 9 && <View style={styles.top10IndicatorCont}>
 									<Text style={styles.top10Text}>{t('top-10-members-end')}</Text>

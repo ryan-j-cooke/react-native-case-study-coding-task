@@ -13,5 +13,6 @@
 	"copied": "Copied",
 	"name-copied-message": "Members name was successfully copied to the clipboard",
 	"ok": "Ok",
-	"cancel": "Cancel"
+	"cancel": "Cancel",
+	"fuzzy-search-results": "Fuzzy search for term \"{{term}}\""
 }
